@@ -31,7 +31,7 @@ export function erasePiece(piece: TPiece, position: [number, number]) {
         const y = block[1] + position[1]
         const el = document.querySelector('.cellIndex-' + x + '-' + y);
         el?.classList.remove('grid-cell-active');
-      })
+    })
 }
 
 export function activatePiece(piece: TPiece, position: [number, number]) {
@@ -40,5 +40,37 @@ export function activatePiece(piece: TPiece, position: [number, number]) {
         const y = block[1] + position[1]
         const el = document.querySelector('.cellIndex-' + x + '-' + y);
         el?.classList.add('grid-cell-active');
-      })
+    })
 }
+
+
+export function checkForCollision(piece: TPiece, position: [number, number], boardState: number[][]) {
+    let breachingEdge: undefined | 'side' | 'bottom';
+    for(let i =0; i< piece.length; i++){
+        const x = piece[i][0] + position[0]
+        const y = piece[i][1] + position[1];
+        if(boardState[y] == undefined){
+            breachingEdge = 'bottom'
+            break;
+        }
+        else if(boardState[y]?.[x] == undefined){
+            breachingEdge = 'side';
+            break;
+        }
+    }
+    return breachingEdge;
+}
+
+function lerp(x: number, y: number){
+    const rand = Math.random();
+    const lerpedNum = x * (1 - rand) + y * rand;
+    return Math.round(lerpedNum)
+}
+
+export function pickRandomPiece(pieces: TPieceCollection) {
+    const pieceKeys  = Object.keys(pieces);
+    const randomPieceIndex = lerp(0, pieceKeys.length - 1);
+    const randomPiece = pieces[pieceKeys[randomPieceIndex] as keyof TPieceCollection]
+    return randomPiece
+}
+

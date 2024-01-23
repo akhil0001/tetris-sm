@@ -31,6 +31,10 @@ function displayPiece(piece: TPiece, position: [number, number]) {
   })
 }
 
+function runGameLoop(send: (type: 'MOVE_DOWN') => void) {
+  setInterval(() => send('MOVE_DOWN'), 500)
+}
+
 function setupGame() {
   const { start, state, send, subscribe } = interpret(tetrisMachine);
   const play = setUpDummyButton('play')
@@ -39,6 +43,7 @@ function setupGame() {
   setupBoard(state.context.gameDims.rows, state.context.gameDims.columns);
   subscribe(newState => displayPiece(newState.context.piece, newState.context.position))
   start();
+  runGameLoop(send);
 }
 
 setupGame()

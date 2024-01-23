@@ -1,6 +1,6 @@
 import { MachineConfig, createContext, createEvents, createStates } from "@simple-state-machine/core";
 import { TPiece } from "./types";
-import { activatePiece, definePieceShapes, erasePiece, rotatePiece } from "./utils";
+import { activatePiece, checkForCollision, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece } from "./utils";
 
 
 interface IContext {
@@ -10,23 +10,25 @@ interface IContext {
         rows: number,
         columns: number
     },
-    position: [number, number]
+    position: [number, number],
+    futurePosition: [number, number]
 }
 
 const pieces = definePieceShapes();
 
-const states = createStates('idle', 'playing');
+const states = createStates('idle', 'playing', 'checkForCollision');
 
-const events = createEvents('ROTATE_PIECE', 'UPDATE_BOARD_STATE', 'MOVE_LEFT', 'MOVE_RIGHT', 'MOVE_DOWN', 'PLAY')
+const events = createEvents('ROTATE_PIECE', 'UPDATE_BOARD_STATE', 'MOVE_LEFT', 'MOVE_RIGHT', 'MOVE_DOWN', 'PLAY', 'COLLISION_DETECTED', 'COLLISION_UN_DETECTED', 'GENERATE_NEW_PIECE')
 
 const context: IContext = createContext({
     boardState: [[]],
-    piece: pieces['OPiece'],
+    piece: pickRandomPiece(pieces),
     position: [4, 0],
     gameDims: {
         rows: 20,
         columns: 10
-    }
+    },
+    futurePosition: [4, 0]
 })
 
 export const tetrisMachine = new MachineConfig<typeof states, IContext, typeof events>(states, context, events);
@@ -55,8 +57,28 @@ whenIn('playing').on('ROTATE_PIECE').fireAndForget(context => {
     piece: (context) => context.piece === pieces['OPiece'] ? context.piece : rotatePiece(context.piece)
 }).fireAndForget(context => activatePiece(context.piece, context.position))
 
-whenIn('playing').after(500).moveTo('playing').fireAndForget(context => erasePiece(context.piece, context.position)).updateContext({
-    position: context => [context.position[0], context.position[1] + 1]
+
+whenIn('checkForCollision').invokeCallback((context, callback) => {
+    const { piece, futurePosition, boardState } = context;
+    const collided = checkForCollision(piece, futurePosition, boardState);
+    if (collided === 'bottom') {
+        callback('GENERATE_NEW_PIECE')
+    }
+    else if(collided === 'side'){
+        callback('COLLISION_DETECTED');
+    }
+    else {
+        callback('COLLISION_UN_DETECTED')
+    }
+})
+
+whenIn('checkForCollision').on('COLLISION_DETECTED').moveTo('playing');
+whenIn('checkForCollision').on('GENERATE_NEW_PIECE').moveTo('playing').updateContext({
+    piece: () => pickRandomPiece(pieces),
+    position: [4,0]
+})
+whenIn('checkForCollision').on('COLLISION_UN_DETECTED').moveTo('playing').fireAndForget(context => erasePiece(context.piece, context.position)).updateContext({
+    position: context => [...context.futurePosition]
 }).fireAndForget(context => activatePiece(context.piece, context.position))
 
 whenIn('playing').invokeCallback((_, callback) => {
@@ -84,14 +106,14 @@ whenIn('playing').invokeCallback((_, callback) => {
     }
 })
 
-whenIn('playing').on('MOVE_LEFT').fireAndForget(context => erasePiece(context.piece, context.position)).updateContext({
-    position: context => [context.position[0] - 1, context.position[1]]
-}).fireAndForget(context => activatePiece(context.piece, context.position))
+whenIn('playing').on('MOVE_LEFT').moveTo('checkForCollision').updateContext({
+    futurePosition: context => [context.position[0] - 1, context.position[1]]
+})
 
-whenIn('playing').on('MOVE_RIGHT').fireAndForget(context => erasePiece(context.piece, context.position)).updateContext({
-    position: context => [context.position[0] + 1, context.position[1]]
-}).fireAndForget(context => activatePiece(context.piece, context.position))
+whenIn('playing').on('MOVE_RIGHT').moveTo('checkForCollision').updateContext({
+    futurePosition: context => [context.position[0] + 1, context.position[1]]
+})
 
-whenIn('playing').on('MOVE_DOWN').fireAndForget(context => erasePiece(context.piece, context.position)).updateContext({
-    position: context => [context.position[0], context.position[1] + 1]
-}).fireAndForget(context => activatePiece(context.piece, context.position))
+whenIn('playing').on('MOVE_DOWN').moveTo('checkForCollision').updateContext({
+    futurePosition: context => [context.position[0], context.position[1] + 1]
+})
