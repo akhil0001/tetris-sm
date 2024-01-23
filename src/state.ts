@@ -1,6 +1,6 @@
 import { MachineConfig, createContext, createEvents, createStates } from "@simple-state-machine/core";
 import { TPiece } from "./types";
-import { activatePiece, checkForCollision, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece } from "./utils";
+import { activatePiece, checkForCollision, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, updateBoardState } from "./utils";
 
 
 interface IContext {
@@ -11,7 +11,8 @@ interface IContext {
         columns: number
     },
     position: [number, number],
-    futurePosition: [number, number]
+    futurePosition: [number, number],
+    direction: 'bottom' | 'left' | 'right'
 }
 
 const pieces = definePieceShapes();
@@ -28,7 +29,8 @@ const context: IContext = createContext({
         rows: 20,
         columns: 10
     },
-    futurePosition: [4, 0]
+    futurePosition: [4, 0],
+    direction: 'bottom'
 })
 
 export const tetrisMachine = new MachineConfig<typeof states, IContext, typeof events>(states, context, events);
@@ -39,8 +41,8 @@ const { whenIn } = tetrisMachine;
 whenIn('idle').invokeCallback((context, callback) => {
     const { gameDims } = context
     const { rows, columns } = gameDims;
-    const emptyRow = new Array(columns).fill(0).map((el: number) => el);
-    const emptyBoard = new Array(rows).fill(0).map(() => emptyRow);
+    const emptyRow = [...new Array(columns) as number[]].map(() => 0);
+    const emptyBoard = [...new Array(rows) as number[]].map(() => [...emptyRow]);
     callback({
         type: 'UPDATE_BOARD_STATE',
         data: emptyBoard
@@ -59,12 +61,12 @@ whenIn('playing').on('ROTATE_PIECE').fireAndForget(context => {
 
 
 whenIn('checkForCollision').invokeCallback((context, callback) => {
-    const { piece, futurePosition, boardState } = context;
-    const collided = checkForCollision(piece, futurePosition, boardState);
+    const { piece, futurePosition, boardState, direction } = context;
+    const collided = checkForCollision(piece, futurePosition, boardState, direction);
     if (collided === 'bottom') {
         callback('GENERATE_NEW_PIECE')
     }
-    else if(collided === 'side'){
+    else if (collided === 'side') {
         callback('COLLISION_DETECTED');
     }
     else {
@@ -75,7 +77,8 @@ whenIn('checkForCollision').invokeCallback((context, callback) => {
 whenIn('checkForCollision').on('COLLISION_DETECTED').moveTo('playing');
 whenIn('checkForCollision').on('GENERATE_NEW_PIECE').moveTo('playing').updateContext({
     piece: () => pickRandomPiece(pieces),
-    position: [4,0]
+    position: [4, 0],
+    boardState: context => updateBoardState(context.boardState, context.piece, context.position)
 })
 whenIn('checkForCollision').on('COLLISION_UN_DETECTED').moveTo('playing').fireAndForget(context => erasePiece(context.piece, context.position)).updateContext({
     position: context => [...context.futurePosition]
@@ -107,13 +110,16 @@ whenIn('playing').invokeCallback((_, callback) => {
 })
 
 whenIn('playing').on('MOVE_LEFT').moveTo('checkForCollision').updateContext({
-    futurePosition: context => [context.position[0] - 1, context.position[1]]
+    futurePosition: context => [context.position[0] - 1, context.position[1]],
+    direction: 'left'
 })
 
 whenIn('playing').on('MOVE_RIGHT').moveTo('checkForCollision').updateContext({
-    futurePosition: context => [context.position[0] + 1, context.position[1]]
+    futurePosition: context => [context.position[0] + 1, context.position[1]],
+    direction: 'right'
 })
 
 whenIn('playing').on('MOVE_DOWN').moveTo('checkForCollision').updateContext({
-    futurePosition: context => [context.position[0], context.position[1] + 1]
+    futurePosition: context => [context.position[0], context.position[1] + 1],
+    direction: 'bottom'
 })

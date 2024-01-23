@@ -44,16 +44,18 @@ export function activatePiece(piece: TPiece, position: [number, number]) {
 }
 
 
-export function checkForCollision(piece: TPiece, position: [number, number], boardState: number[][]) {
+export function checkForCollision(piece: TPiece, position: [number, number], boardState: number[][], direction: 'bottom' | 'left' | 'right') {
     let breachingEdge: undefined | 'side' | 'bottom';
-    for(let i =0; i< piece.length; i++){
+    for (let i = 0; i < piece.length; i++) {
         const x = piece[i][0] + position[0]
         const y = piece[i][1] + position[1];
-        if(boardState[y] == undefined){
-            breachingEdge = 'bottom'
-            break;
+        if (direction === 'bottom') {
+            if (boardState[y] == undefined || (boardState[y]?.[x] === 1)) {
+                breachingEdge = 'bottom'
+                break;
+            }
         }
-        else if(boardState[y]?.[x] == undefined){
+        else if (boardState[y]?.[x] == undefined || (boardState[y]?.[x] === 1)) {
             breachingEdge = 'side';
             break;
         }
@@ -61,16 +63,24 @@ export function checkForCollision(piece: TPiece, position: [number, number], boa
     return breachingEdge;
 }
 
-function lerp(x: number, y: number){
+function lerp(x: number, y: number) {
     const rand = Math.random();
     const lerpedNum = x * (1 - rand) + y * rand;
     return Math.round(lerpedNum)
 }
 
 export function pickRandomPiece(pieces: TPieceCollection) {
-    const pieceKeys  = Object.keys(pieces);
+    const pieceKeys = Object.keys(pieces);
     const randomPieceIndex = lerp(0, pieceKeys.length - 1);
     const randomPiece = pieces[pieceKeys[randomPieceIndex] as keyof TPieceCollection]
     return randomPiece
 }
 
+export function updateBoardState(boardState: number[][], piece: TPiece, position: [number, number]) {
+    piece.forEach(block => {
+        const x = block[0] + position[0]
+        const y = block[1] + position[1]
+        boardState[y][x] = 1
+    })
+    return boardState
+}
