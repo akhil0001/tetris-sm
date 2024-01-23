@@ -24,10 +24,11 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  place-items: center;
+  display: flex;
+  flex-flow: column;
 }
 
 h1 {
@@ -42,27 +43,23 @@ h1 {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
+.grid {
+  display: grid;
+  width: 300px;
+  height: 600px;
+  outline: 1px solid red;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(20, 1fr);
 }
 
-.card {
-  padding: 2em;
+.grid-cell {
+  outline: 1px solid grey;
 }
 
-.read-the-docs {
-  color: #888;
+.grid-cell-active {
+  outline: 1px solid rgba(0,255,0,0.3);
+  background: rgba(0,255,0,0.3);
 }
-
 button {
   border-radius: 8px;
   border: 1px solid transparent;
