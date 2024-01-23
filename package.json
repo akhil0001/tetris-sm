@@ -19,5 +19,8 @@
   "author": {
     "name": "Akhil Sai Ram Chennareddy"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@simple-state-machine/core": "^0.1.0-alpha.3"
+  }
 }
