@@ -10,9 +10,10 @@ function setUpDummyButton(text: string) {
 }
 
 function setupBoard(rows: number, columns: number) {
+  const gameContainer = document.querySelector('.game')
   const gridEl = document.createElement('div');
   gridEl.className = 'grid'
-  document.body.appendChild(gridEl);
+  gameContainer?.appendChild(gridEl);
   for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
     for (let colIndex = 0; colIndex < columns; colIndex++) {
       const gridCell = document.createElement('div')
@@ -22,11 +23,12 @@ function setupBoard(rows: number, columns: number) {
   }
 }
 
+
 function displayPiece(piece: TPiece, position: [number, number]) {
   piece.forEach(block => {
     const x = block[0] + position[0]
     const y = block[1] + position[1]
-    const el = document.querySelector('.col-' + x + '.row-' + y);
+    const el = document.querySelector('.grid-cell.col-' + x + '.row-' + y);
     el?.classList.add('grid-cell-active');
   })
 }

@@ -1,10 +1,10 @@
 import { MachineConfig, createContext, createEvents, createStates } from "@simple-state-machine/core";
 import { TPiece, TPieceCollection } from "./types";
-import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition } from "./actions";
+import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition, eraseNextPiece, setUpNextPieceDisplay } from "./actions";
 
 
 interface IContext {
-    boardState: number[][],
+    boardState: string[][],
     piece: TPiece,
     pieceName: keyof TPieceCollection,
     gameDims: {
@@ -17,7 +17,8 @@ interface IContext {
     direction: 'bottom' | 'left' | 'right' | 'setByDefault',
     filledColIndexes: number[],
     score: number,
-    shouldAccelerate: boolean
+    shouldAccelerate: boolean,
+    nextPiece: keyof TPieceCollection
 }
 
 const pieces = definePieceShapes();
@@ -44,7 +45,8 @@ const context: IContext = createContext({
     direction: 'bottom',
     filledColIndexes: [],
     score: 0,
-    shouldAccelerate: false
+    shouldAccelerate: false,
+    nextPiece: pickRandomPiece(pieces)
 })
 
 export const tetrisMachine = new MachineConfig<typeof states, IContext, typeof events>(states, context, events);
@@ -69,10 +71,11 @@ whenIn('idle').invokeCallback((context, callback) => {
     .on('UPDATE_BOARD_STATE')
     .moveTo('paused')
     .updateContext({
-        boardState: (_, event) => event.data as number[][],
+        boardState: (_, event) => event.data as string[][],
         position: setStartPosition
     })
     .fireAndForget(reconstructBoard)
+    .fireAndForget(setUpNextPieceDisplay)
 
 whenIn('idle')
     .on('PLAY')
@@ -82,7 +85,8 @@ whenIn('checkForCollision')
     .invokeCallback((context, callback) => {
         const { futurePosition, boardState, futurePieceAfterRotation } = context;
 
-        const didPieceTouchFinalCol = futurePieceAfterRotation.some(([x, y]) => boardState[y + futurePosition[1]] == undefined || boardState[y + futurePosition[1]][x + futurePosition[0]] === 1);
+        const didPieceTouchFinalCol = futurePieceAfterRotation.some(([x, y]) => boardState[y + futurePosition[1]] == undefined || Object.keys(pieces).includes(boardState[y + futurePosition[1]][x + futurePosition[0]]));
+       
         if (didPieceTouchFinalCol) {
             const didPieceAlsoTouchOGPosition = futurePieceAfterRotation.some(([, y]) => y + futurePosition[1] === 1);
             if (didPieceAlsoTouchOGPosition) {
@@ -92,7 +96,7 @@ whenIn('checkForCollision')
                 callback('CHECK_FOR_ROW_FILL');
             return;
         }
-        const didNotCollide = futurePieceAfterRotation.every(([x, y]) => boardState[futurePosition[1] + y][futurePosition[0] + x] === 0);
+        const didNotCollide = futurePieceAfterRotation.every(([x, y]) => boardState[futurePosition[1] + y][futurePosition[0] + x] === "0");
         if (didNotCollide) {
             callback('COLLISION_UN_DETECTED')
         }
@@ -148,18 +152,19 @@ whenIn('checkForRowFill').invokeCallback((context, callback) => {
 whenIn('checkForRowFill').on('GENERATE_NEW_PIECE')
     .moveTo('playing')
     .updateContext({
-        pieceName: () => pickRandomPiece(pieces)
-    })
-    .updateContext({
-        piece: (context) => pieces[context.pieceName],
+        piece: (context) => pieces[context.nextPiece],
+        pieceName: context => context.nextPiece,
         position: setStartPosition,
         futurePosition: setStartPosition,
+        futurePieceAfterRotation: context => pieces[context.nextPiece],
         direction: 'setByDefault',
         shouldAccelerate: false
     })
+    .fireAndForget(eraseNextPiece)
     .updateContext({
-        futurePieceAfterRotation: context => context.piece
+        nextPiece: () => pickRandomPiece(pieces)
     })
+    .fireAndForget(setUpNextPieceDisplay)
 
 whenIn('checkForRowFill').on('UPDATE_FILLED_COL_INDEXES')
     .moveTo('filledAnimation')
@@ -173,13 +178,15 @@ whenIn('checkForRowFill').on('UPDATE_FILLED_COL_INDEXES')
 whenIn('filledAnimation').after(1000)
     .moveTo('playing')
     .updateContext({
-        pieceName: () => pickRandomPiece(pieces)
-    })
-    .updateContext({
-        piece: context => pieces[context.pieceName],
+        piece: context => pieces[context.nextPiece],
         position: setStartPosition,
         shouldAccelerate: false
     })
+    .fireAndForget(eraseNextPiece)
+    .updateContext({
+        nextPiece: () => pickRandomPiece(pieces)
+    })
+    .fireAndForget(setUpNextPieceDisplay)
     .fireAndForget(removeBlinkPieces)
     .updateContext({
         filledColIndexes: [],
