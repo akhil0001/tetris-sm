@@ -72,7 +72,8 @@ whenIn('idle').invokeCallback((context, callback) => {
     .moveTo('paused')
     .updateContext({
         boardState: (_, event) => event.data as string[][],
-        position: setStartPosition
+        position: setStartPosition,
+        nextPiece: () => pickRandomPiece(pieces)
     })
     .fireAndForget(reconstructBoard)
     .fireAndForget(setUpNextPieceDisplay)
