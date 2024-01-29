@@ -1,11 +1,12 @@
 import { MachineConfig, createContext, createEvents, createStates } from "@simple-state-machine/core";
-import { TPiece } from "./types";
+import { TPiece, TPieceCollection } from "./types";
 import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition } from "./actions";
 
 
 interface IContext {
     boardState: number[][],
     piece: TPiece,
+    pieceName: keyof TPieceCollection,
     gameDims: {
         rows: number,
         columns: number
@@ -31,14 +32,15 @@ const randomPiece = pickRandomPiece(pieces)
 
 const context: IContext = createContext({
     boardState: [[]],
-    piece: randomPiece,
-    futurePieceAfterRotation: randomPiece,
-    position: [0,0],
+    pieceName: randomPiece,
+    piece: pieces[randomPiece] as TPiece,
+    futurePieceAfterRotation: pieces[randomPiece],
+    position: [0, 0],
     gameDims: {
         rows: 20,
         columns: 10
     },
-    futurePosition: [0,0],
+    futurePosition: [0, 0],
     direction: 'bottom',
     filledColIndexes: [],
     score: 0,
@@ -146,8 +148,11 @@ whenIn('checkForRowFill').invokeCallback((context, callback) => {
 whenIn('checkForRowFill').on('GENERATE_NEW_PIECE')
     .moveTo('playing')
     .updateContext({
-        piece: () => pickRandomPiece(pieces),
-        position: setStartPosition ,
+        pieceName: () => pickRandomPiece(pieces)
+    })
+    .updateContext({
+        piece: (context) => pieces[context.pieceName],
+        position: setStartPosition,
         futurePosition: setStartPosition,
         direction: 'setByDefault',
         shouldAccelerate: false
@@ -168,7 +173,10 @@ whenIn('checkForRowFill').on('UPDATE_FILLED_COL_INDEXES')
 whenIn('filledAnimation').after(1000)
     .moveTo('playing')
     .updateContext({
-        piece: () => pickRandomPiece(pieces),
+        pieceName: () => pickRandomPiece(pieces)
+    })
+    .updateContext({
+        piece: context => pieces[context.pieceName],
         position: setStartPosition,
         shouldAccelerate: false
     })

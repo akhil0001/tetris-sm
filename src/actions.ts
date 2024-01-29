@@ -49,11 +49,12 @@ function lerp(x: number, y: number) {
     return Math.round(lerpedNum)
 }
 
-export function pickRandomPiece(pieces: TPieceCollection) {
+export function pickRandomPiece(pieces: TPieceCollection): keyof TPieceCollection {
     const pieceKeys = Object.keys(pieces);
     const randomPieceIndex = lerp(0, pieceKeys.length - 1);
-    const randomPiece = pieces[pieceKeys[randomPieceIndex] as keyof TPieceCollection]
-    return randomPiece
+    // const randomPiece = pieces[pieceKeys[randomPieceIndex] as keyof TPieceCollection]
+    // return randomPiece
+    return pieceKeys[randomPieceIndex] as keyof TPieceCollection
 }
 
 export function updateBoardState({ piece, position, boardState }: { piece: TPiece, position: [number, number], boardState: number[][] }) {
