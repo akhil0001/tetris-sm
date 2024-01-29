@@ -6,5 +6,8 @@ module.exports = {
     project: true,
     tsconfigRootDir: __dirname,
   },
+  rules: {
+    "newline-per-chained-call": "warn"
+  },
   root: true,
 };
