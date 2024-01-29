@@ -91,3 +91,31 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.blink {
+  animation: 1s infinite linear blink;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0
+  }
+  50% {
+    opacity: 1
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.delay {
+  background-color: red;
+  outline: 1px solid red;
+  transform: scale(0);
+  transition: all 1s ease-in-out;
+}
