@@ -4,7 +4,7 @@ import { TPiece, TPieceCollection } from "./types";
 import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition, eraseNextPiece, setUpNextPieceDisplay } from "./actions";
 
 const hammer = new Hammer(document.body)
-hammer.get('swipe').set({ direction: Hammer.DIRECTION_VERTICAL });
+hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
 
 interface IContext {
     boardState: string[][],
