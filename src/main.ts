@@ -39,6 +39,16 @@ function runGameLoop(send: (type: 'MOVE_DOWN_FROM_ENGINE') => void) {
 
 function setupGame() {
   const { start, state, send, subscribe } = interpret(tetrisMachine);
+  const moveRightBtn = document.querySelector('#moveRight')
+  const moveDownBtn = document.querySelector('#moveDown')
+  const moveLeftBtn = document.querySelector('#moveLeft')
+  const rotateBtn = document.querySelector('#rotate')
+  moveDownBtn?.addEventListener('click', () => send('MOVE_DOWN'))
+  moveLeftBtn?.addEventListener('click', () => send('MOVE_LEFT'))
+  moveRightBtn?.addEventListener('click', () => send('MOVE_RIGHT'))
+  rotateBtn?.addEventListener('click', () => send('ROTATE_PIECE'))
+  document.body.addEventListener('pointerup', () => setTimeout(() => send('DECELERATE'), 100))
+  document.body.addEventListener('mouseup', () => setTimeout(() => send('DECELERATE'), 100))
   let prevAccelerate = state.context.shouldAccelerate;
   const play = setUpDummyButton('play');
   play.onclick = () => send('PLAY');
