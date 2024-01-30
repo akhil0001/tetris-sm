@@ -12,37 +12,40 @@
   <div id="app">
     <h1>Tetris Game using State Machine</h1>
     <div class="game">
-      <div class="next-piece-grid">
-        <div class="next-piece-grid-cell col-0 row-0"></div>
-        <div class="next-piece-grid-cell col-1 row-0"></div>
-        <div class="next-piece-grid-cell col-2 row-0"></div>
-        <div class="next-piece-grid-cell col-3 row-0"></div>
-        <div class="next-piece-grid-cell col-4 row-0"></div>
-        <div class="next-piece-grid-cell col-0 row-1"></div>
-        <div class="next-piece-grid-cell col-1 row-1"></div>
-        <div class="next-piece-grid-cell col-2 row-1"></div>
-        <div class="next-piece-grid-cell col-3 row-1"></div>
-        <div class="next-piece-grid-cell col-4 row-1"></div>
-        <div class="next-piece-grid-cell col-0 row-2"></div>
-        <div class="next-piece-grid-cell col-1 row-2"></div>
-        <div class="next-piece-grid-cell col-2 row-2"></div>
-        <div class="next-piece-grid-cell col-3 row-2"></div>
-        <div class="next-piece-grid-cell col-4 row-2"></div>
-        <div class="next-piece-grid-cell col-0 row-3"></div>
-        <div class="next-piece-grid-cell col-1 row-3"></div>
-        <div class="next-piece-grid-cell col-2 row-3"></div>
-        <div class="next-piece-grid-cell col-3 row-3"></div>
-        <div class="next-piece-grid-cell col-4 row-3"></div>
+      <div class="flex">
+        <div class="next-piece-grid">
+          <div class="next-piece-grid-cell col-0 row-0"></div>
+          <div class="next-piece-grid-cell col-1 row-0"></div>
+          <div class="next-piece-grid-cell col-2 row-0"></div>
+          <div class="next-piece-grid-cell col-3 row-0"></div>
+          <div class="next-piece-grid-cell col-4 row-0"></div>
+          <div class="next-piece-grid-cell col-0 row-1"></div>
+          <div class="next-piece-grid-cell col-1 row-1"></div>
+          <div class="next-piece-grid-cell col-2 row-1"></div>
+          <div class="next-piece-grid-cell col-3 row-1"></div>
+          <div class="next-piece-grid-cell col-4 row-1"></div>
+          <div class="next-piece-grid-cell col-0 row-2"></div>
+          <div class="next-piece-grid-cell col-1 row-2"></div>
+          <div class="next-piece-grid-cell col-2 row-2"></div>
+          <div class="next-piece-grid-cell col-3 row-2"></div>
+          <div class="next-piece-grid-cell col-4 row-2"></div>
+          <div class="next-piece-grid-cell col-0 row-3"></div>
+          <div class="next-piece-grid-cell col-1 row-3"></div>
+          <div class="next-piece-grid-cell col-2 row-3"></div>
+          <div class="next-piece-grid-cell col-3 row-3"></div>
+          <div class="next-piece-grid-cell col-4 row-3"></div>
+        </div>
+        <p id="score">Score</p>
+        <div class="btn-grid">
+          <button id="rotate">Rotate</button>
+          <button id="moveDown">Down</button>
+          <button id="moveLeft">Left</button>
+          <button id="moveRight">Right</button>
+        </div>
       </div>
     </div>
   </div>
-  <p id="score">Score</p>
-  <div class="btn-grid">
-    <button id="rotate">Rotate</button>
-    <button id="moveDown">Down</button>
-    <button id="moveLeft">Left</button>
-    <button id="moveRight">Right</button>
-  </div>
+
   <script type="module" src="/src/main.ts"></script>
 </body>
 
