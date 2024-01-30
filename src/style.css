@@ -3,9 +3,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
+  color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -35,6 +34,7 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: white;
 }
 
 #app {
@@ -60,7 +60,7 @@ h1 {
 }
 
 .grid-cell-active, .next-grid-cell-active {
-  box-shadow: 1px 1px 0 0 rgba(0, 0, 0, 1), 2px 1px 0 0 currentColor, 3px 1px 0 0 currentColor, 4px 1px 0 0 currentColor, 5px 1px 0 0 rgba(0, 0, 0, 1), 1px 2px 0 0 currentColor, 2px 2px 0 0 rgba(0, 0, 0, 1), 3px 2px 0 0 currentColor, 4px 2px 0 0 rgba(0, 0, 0, 1), 5px 2px 0 0 currentColor, 1px 3px 0 0 currentColor, 2px 3px 0 0 currentColor, 3px 3px 0 0 currentColor, 4px 3px 0 0 currentColor, 5px 3px 0 0 currentColor, 1px 4px 0 0 currentColor, 2px 4px 0 0 rgba(0, 0, 0, 1), 3px 4px 0 0 rgba(0, 0, 0, 1), 4px 4px 0 0 rgba(0, 0, 0, 1), 5px 4px 0 0 currentColor;
+  box-shadow: 1px 1px 0 0 #242424, 2px 1px 0 0 currentColor, 3px 1px 0 0 currentColor, 4px 1px 0 0 currentColor, 5px 1px 0 0 #242424, 1px 2px 0 0 currentColor, 2px 2px 0 0 #242424, 3px 2px 0 0 currentColor, 4px 2px 0 0 #242424, 5px 2px 0 0 currentColor, 1px 3px 0 0 currentColor, 2px 3px 0 0 currentColor, 3px 3px 0 0 currentColor, 4px 3px 0 0 currentColor, 5px 3px 0 0 currentColor, 1px 4px 0 0 currentColor, 2px 4px 0 0 #242424, 3px 4px 0 0 #242424, 4px 4px 0 0 #242424, 5px 4px 0 0 currentColor;
 }
 
 button {
@@ -73,6 +73,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  color: white;
 }
 
 button:hover {
