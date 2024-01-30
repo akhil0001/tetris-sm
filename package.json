@@ -21,6 +21,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@simple-state-machine/core": "^0.1.0-alpha.3"
+    "@simple-state-machine/core": "^0.1.0-alpha.3",
+    "@types/hammerjs": "^2.0.45",
+    "hammerjs": "^2.0.8"
   }
 }

@@ -1,7 +1,9 @@
 import { MachineConfig, createContext, createEvents, createStates } from "@simple-state-machine/core";
+import Hammer from "hammerjs";
 import { TPiece, TPieceCollection } from "./types";
 import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition, eraseNextPiece, setUpNextPieceDisplay } from "./actions";
 
+const hammer = new Hammer(document.body)
 
 interface IContext {
     boardState: string[][],
@@ -87,7 +89,7 @@ whenIn('checkForCollision')
         const { futurePosition, boardState, futurePieceAfterRotation } = context;
 
         const didPieceTouchFinalCol = futurePieceAfterRotation.some(([x, y]) => boardState[y + futurePosition[1]] == undefined || Object.keys(pieces).includes(boardState[y + futurePosition[1]][x + futurePosition[0]]));
-       
+
         if (didPieceTouchFinalCol) {
             const didPieceAlsoTouchOGPosition = futurePieceAfterRotation.some(([, y]) => y + futurePosition[1] === 1);
             if (didPieceAlsoTouchOGPosition) {
@@ -221,12 +223,22 @@ whenIn('playing').invokeCallback((_, callback) => {
             hardDrop()
         }
     }
+    hammer.on('swipeleft', moveLeft)
+    hammer.on('swiperight', moveRight)
+    hammer.on('swipeup', rotate)
+    hammer.on('swipedown', hardDrop)
+    hammer.on('tap', moveDown)
     const keyUpListener = () => callback('DECELERATE')
     document.body.addEventListener('keydown', keyDownListener)
     document.body.addEventListener('keyup', keyUpListener)
     return () => {
         document.body.removeEventListener('keydown', keyDownListener)
         document.body.removeEventListener('keyup', keyUpListener)
+        hammer.off('swipeleft', moveLeft)
+        hammer.off('swiperight', moveRight)
+        hammer.off('swipeup', rotate)
+        hammer.off('swipedown', hardDrop)
+        hammer.off('tap', moveDown)
     }
 })
 
