@@ -1,7 +1,10 @@
 import { MachineConfig, createContext, createEvents, createStates } from "@simple-state-machine/core";
 import { TPiece, TPieceCollection } from "./types";
-import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition, eraseNextPiece, setUpNextPieceDisplay, removeDelayClassFromNextPieceDisplayGridCells } from "./actions";
+import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition, eraseNextPiece, setUpNextPieceDisplay, removeDelayClassFromNextPieceDisplayGridCells, updateSequenceDiagram } from "./actions";
 
+export const states = createStates('idle', 'playing', 'checkForCollision', 'checkForRowFill', 'filledAnimation', 'paused', 'gameCompleteAnimation');
+
+const events = createEvents('ROTATE_PIECE', 'UPDATE_BOARD_STATE', 'MOVE_LEFT', 'MOVE_RIGHT', 'MOVE_DOWN', 'MOVE_DOWN_FROM_ENGINE', 'PLAY', 'COLLISION_DETECTED', 'COLLISION_UN_DETECTED', 'GENERATE_NEW_PIECE', 'CHECK_FOR_ROW_FILL', 'UPDATE_FILLED_COL_INDEXES', "GAME_COMPLETE", 'PAUSE', 'HARD_DROP', 'DECELERATE');
 
 interface IContext {
     boardState: string[][],
@@ -18,15 +21,13 @@ interface IContext {
     filledColIndexes: number[],
     score: number,
     shouldAccelerate: boolean,
-    nextPieceName: keyof TPieceCollection
+    nextPieceName: keyof TPieceCollection,
+    sourceState: typeof states[number],
+    targetState: typeof states[number],
+    graphDefinition: string[]
 }
 
 const pieces = definePieceShapes();
-
-
-const states = createStates('idle', 'playing', 'checkForCollision', 'checkForRowFill', 'filledAnimation', 'paused', 'gameCompleteAnimation');
-
-const events = createEvents('ROTATE_PIECE', 'UPDATE_BOARD_STATE', 'MOVE_LEFT', 'MOVE_RIGHT', 'MOVE_DOWN', 'MOVE_DOWN_FROM_ENGINE', 'PLAY', 'COLLISION_DETECTED', 'COLLISION_UN_DETECTED', 'GENERATE_NEW_PIECE', 'CHECK_FOR_ROW_FILL', 'UPDATE_FILLED_COL_INDEXES', "GAME_COMPLETE", 'PAUSE', 'HARD_DROP', 'DECELERATE');
 
 const randomPiece = pickRandomPiece(pieces)
 
@@ -46,7 +47,17 @@ const context: IContext = createContext({
     filledColIndexes: [],
     score: 0,
     shouldAccelerate: false,
-    nextPieceName: pickRandomPiece(pieces)
+    nextPieceName: pickRandomPiece(pieces),
+    sourceState: 'idle',
+    targetState: 'idle',
+    graphDefinition: [`sequenceDiagram
+                participant idle
+            participant playing
+            participant checkForCollision
+            participant checkForRowFill
+            participant filledAnimation
+            participant paused
+            participant gameCompleteAnimation`]
 })
 
 export const tetrisMachine = new MachineConfig<typeof states, IContext, typeof events>(states, context, events);
@@ -55,6 +66,23 @@ export const tetrisMachine = new MachineConfig<typeof states, IContext, typeof e
 const { whenIn } = tetrisMachine;
 
 tetrisMachine.on('PAUSE').moveTo('paused');
+
+events.map(event => tetrisMachine.on(event)
+    .updateContext({
+        graphDefinition: context => [context.graphDefinition[0], ...context.graphDefinition.slice(-3), `${context.sourceState} -->> ${context.targetState}: ${event}`]
+    })
+    .fireAndForget(context => {
+        updateSequenceDiagram(context.graphDefinition).then(console.log)
+            .catch(console.log)
+    }))
+
+states.map(state => {
+    whenIn(state).onEnter()
+        .updateContext({
+            sourceState: context => context.targetState,
+            targetState: state,
+        })
+})
 
 whenIn('paused').on('PLAY')
     .moveTo('playing')
@@ -226,7 +254,7 @@ whenIn('playing').invokeCallback((_, callback) => {
     const keyUpListener = () => callback('DECELERATE')
     document.body.addEventListener('keydown', keyDownListener)
     document.body.addEventListener('keyup', keyUpListener)
-    
+
     return () => {
         document.body.removeEventListener('keydown', keyDownListener)
         document.body.removeEventListener('keyup', keyUpListener)

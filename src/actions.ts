@@ -1,3 +1,4 @@
+import mermaid from "mermaid"
 import { TPiece, TPieceCollection, TPieceCoord } from "./types"
 
 const buildAPiece = (a1: number, b1: number, a2: number, b2: number, a3: number, b3: number, a4: number, b4: number): TPiece => {
@@ -184,3 +185,13 @@ export function removeDelayClassFromNextPieceDisplayGridCells() {
         pieceEl.classList.remove('delay')
     })
 }
+
+export async function updateSequenceDiagram(graphDefinition:string[]) {
+    const sequenceDiagramContainerEl = document.querySelector('.sequence-diagram-container')
+    if (!sequenceDiagramContainerEl) {
+      return;
+    }
+    console.log(graphDefinition)
+    const { svg } = await mermaid.render('sequence-dynamic', graphDefinition.join('\n'));
+    sequenceDiagramContainerEl.innerHTML = svg;
+  }

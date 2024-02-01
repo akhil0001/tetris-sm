@@ -2,6 +2,11 @@ import { interpret } from '@simple-state-machine/core'
 import { tetrisMachine } from './state'
 import './style.css'
 import { TPiece } from './types';
+import mermaid from 'mermaid';
+
+mermaid.initialize({
+  theme: 'dark'
+})
 
 function setUpDummyButton(text: string) {
   const button = document.createElement('button')
@@ -39,6 +44,7 @@ function runGameLoop(send: (type: 'MOVE_DOWN_FROM_ENGINE') => void) {
 
 function setupGame() {
   const { start, state, send, subscribe } = interpret(tetrisMachine);
+  // await setUpSequenceDiagram()
   const moveRightBtn = document.querySelector('#moveRight')
   const moveDownBtn = document.querySelector('#moveDown')
   const moveLeftBtn = document.querySelector('#moveLeft')
@@ -91,5 +97,22 @@ function setupGame() {
   start();
   runGameLoop(send);
 }
+
+// async function setUpSequenceDiagram() {
+//   const sequenceDiagramContainerEl = document.querySelector('.sequence-diagram-container')
+//   if (!sequenceDiagramContainerEl) {
+//     return;
+//   }
+//   const statesAsParticipants = states.map(state => 'participant ' + state).join('\n')
+//   graphDefinition = `
+//   sequenceDiagram
+//     ${statesAsParticipants}
+//   `;
+//   console.log(graphDefinition)
+//   const { svg } = await mermaid.render('sequence-dynamic', graphDefinition);
+//   sequenceDiagramContainerEl.innerHTML = svg;
+// }
+
+
 
 setupGame()

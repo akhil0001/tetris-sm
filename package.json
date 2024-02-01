@@ -21,6 +21,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@simple-state-machine/core": "^0.1.0-alpha.3"
+    "@simple-state-machine/core": "^0.1.0-alpha.3",
+    "d2lang-js": "^0.2.0",
+    "mermaid": "^10.7.0"
   }
 }
