@@ -1,6 +1,6 @@
 import { MachineConfig, createContext, createEvents, createStates } from "@simple-state-machine/core";
 import { TPiece, TPieceCollection } from "./types";
-import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition, eraseNextPiece, setUpNextPieceDisplay } from "./actions";
+import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition, eraseNextPiece, setUpNextPieceDisplay, removeDelayClassFromNextPieceDisplayGridCells } from "./actions";
 
 
 interface IContext {
@@ -76,6 +76,7 @@ whenIn('idle').invokeCallback((context, callback) => {
         nextPieceName: () => pickRandomPiece(pieces)
     })
     .fireAndForget(reconstructBoard)
+    .fireAndForget(removeDelayClassFromNextPieceDisplayGridCells)
     .fireAndForget(setUpNextPieceDisplay)
 
 whenIn('idle')

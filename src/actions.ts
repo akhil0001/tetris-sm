@@ -177,3 +177,10 @@ export function setUpNextPieceDisplay({ nextPieceName }: { nextPieceName: keyof 
         }
     })
 }
+
+export function removeDelayClassFromNextPieceDisplayGridCells() {
+    const piecesEls = document.querySelectorAll('.next-piece-grid-cell')
+    piecesEls.forEach(pieceEl => {
+        pieceEl.classList.remove('delay')
+    })
+}
