@@ -1,10 +1,7 @@
 import { MachineConfig, createContext, createEvents, createStates } from "@simple-state-machine/core";
-import Hammer from "hammerjs";
 import { TPiece, TPieceCollection } from "./types";
 import { activatePiece, checkForRowFill, createBoard, definePieceShapes, erasePiece, pickRandomPiece, rotatePiece, shiftFilledCells, updateBoardState, blinkPieces, reconstructBoard, removeBlinkPieces, animateGameComplete, returnFuturePositionOnHardDrop, setStartPosition, eraseNextPiece, setUpNextPieceDisplay } from "./actions";
 
-const hammer = new Hammer(document.body)
-hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL, velocity: 0.1 });
 
 interface IContext {
     boardState: string[][],
@@ -224,11 +221,6 @@ whenIn('playing').invokeCallback((_, callback) => {
             hardDrop()
         }
     }
-    // hammer.on('swipeleft', moveLeft)
-    // hammer.on('swiperight', moveRight)
-    // hammer.on('swipeup', rotate)
-    // hammer.on('swipedown', hardDrop)
-    // hammer.on('tap', moveDown)
     const keyUpListener = () => callback('DECELERATE')
     document.body.addEventListener('keydown', keyDownListener)
     document.body.addEventListener('keyup', keyUpListener)
@@ -236,11 +228,6 @@ whenIn('playing').invokeCallback((_, callback) => {
     return () => {
         document.body.removeEventListener('keydown', keyDownListener)
         document.body.removeEventListener('keyup', keyUpListener)
-        hammer.off('swipeleft', moveLeft)
-        hammer.off('swiperight', moveRight)
-        hammer.off('swipeup', rotate)
-        hammer.off('swipedown', hardDrop)
-        hammer.off('tap', moveDown)
     }
 })
 
