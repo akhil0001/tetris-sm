@@ -179,6 +179,7 @@ whenIn('checkForRowFill').on('UPDATE_FILLED_COL_INDEXES')
 whenIn('filledAnimation').after(1000)
     .moveTo('playing')
     .updateContext({
+        pieceName: context => context.nextPiece,
         piece: context => pieces[context.nextPiece],
         position: setStartPosition,
         shouldAccelerate: false
