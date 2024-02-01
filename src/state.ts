@@ -18,7 +18,7 @@ interface IContext {
     filledColIndexes: number[],
     score: number,
     shouldAccelerate: boolean,
-    nextPiece: keyof TPieceCollection
+    nextPieceName: keyof TPieceCollection
 }
 
 const pieces = definePieceShapes();
@@ -46,7 +46,7 @@ const context: IContext = createContext({
     filledColIndexes: [],
     score: 0,
     shouldAccelerate: false,
-    nextPiece: pickRandomPiece(pieces)
+    nextPieceName: pickRandomPiece(pieces)
 })
 
 export const tetrisMachine = new MachineConfig<typeof states, IContext, typeof events>(states, context, events);
@@ -73,7 +73,7 @@ whenIn('idle').invokeCallback((context, callback) => {
     .updateContext({
         boardState: (_, event) => event.data as string[][],
         position: setStartPosition,
-        nextPiece: () => pickRandomPiece(pieces)
+        nextPieceName: () => pickRandomPiece(pieces)
     })
     .fireAndForget(reconstructBoard)
     .fireAndForget(setUpNextPieceDisplay)
@@ -153,17 +153,17 @@ whenIn('checkForRowFill').invokeCallback((context, callback) => {
 whenIn('checkForRowFill').on('GENERATE_NEW_PIECE')
     .moveTo('playing')
     .updateContext({
-        piece: (context) => pieces[context.nextPiece],
-        pieceName: context => context.nextPiece,
+        piece: (context) => pieces[context.nextPieceName],
+        pieceName: context => context.nextPieceName,
         position: setStartPosition,
         futurePosition: setStartPosition,
-        futurePieceAfterRotation: context => pieces[context.nextPiece],
+        futurePieceAfterRotation: context => pieces[context.nextPieceName],
         direction: 'setByDefault',
         shouldAccelerate: false
     })
     .fireAndForget(eraseNextPiece)
     .updateContext({
-        nextPiece: () => pickRandomPiece(pieces)
+        nextPieceName: () => pickRandomPiece(pieces)
     })
     .fireAndForget(setUpNextPieceDisplay)
 
@@ -179,14 +179,14 @@ whenIn('checkForRowFill').on('UPDATE_FILLED_COL_INDEXES')
 whenIn('filledAnimation').after(1000)
     .moveTo('playing')
     .updateContext({
-        pieceName: context => context.nextPiece,
-        piece: context => pieces[context.nextPiece],
+        pieceName: context => context.nextPieceName,
+        piece: context => pieces[context.nextPieceName],
         position: setStartPosition,
         shouldAccelerate: false
     })
     .fireAndForget(eraseNextPiece)
     .updateContext({
-        nextPiece: () => pickRandomPiece(pieces)
+        nextPieceName: () => pickRandomPiece(pieces)
     })
     .fireAndForget(setUpNextPieceDisplay)
     .fireAndForget(removeBlinkPieces)

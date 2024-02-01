@@ -164,16 +164,16 @@ export function setStartPosition({ gameDims }: { gameDims: { rows: number, colum
     return [columns / 2 - 1, 1]
 }
 
-export function setUpNextPieceDisplay({ nextPiece }: { nextPiece: keyof TPieceCollection }) {
+export function setUpNextPieceDisplay({ nextPieceName }: { nextPieceName: keyof TPieceCollection }) {
     const pieces = definePieceShapes();
-    const position = nextPiece === 'IPiece' ? [1, 2] : [2, 2]
-    pieces[nextPiece].forEach(block => {
+    const position = nextPieceName === 'IPiece' ? [1, 2] : [2, 2]
+    pieces[nextPieceName].forEach(block => {
         const x = block[0] + position[0]
         const y = block[1] + position[1]
         const el = document.querySelector('.next-piece-grid-cell.col-' + x + '.row-' + y);
         if (el) {
             el.classList.add('next-grid-cell-active');
-            el.id = 'color-' + nextPiece
+            el.id = 'color-' + nextPieceName
         }
     })
 }
